@@ -1,0 +1,371 @@
+{
+	"name": "infinity",
+	"publisher": "infinity-technologies",
+	"displayName": "INFINITY",
+	"description": "INFINITY runtime support for Visual Studio Code.",
+	"version": "1.0.8",
+	"author": {
+		"name": "INFINITY Technologies AG",
+		"email": "support@gitlab.infinity-technologies.li"
+	},
+	"license": "MIT",
+	"icon": "images/infinity-debugger-icon.png",
+	"private": true,
+	"repository": {
+		"type": "git",
+		"url": "https://gitlab.infinity-technologies.li/tf/infinity-vscode-extension"
+	},
+	"bugs": {
+		"url": "https://gitlab.infinity-technologies.li/tf/infinity-vscode-extension"
+	},
+	"engines": {
+		"vscode": "^1.66.0"
+	},
+	"categories": [
+		"Debuggers"
+	],
+	"activationEvents": [
+		"onDebug"
+	],
+	"main": "./out/extension.js",
+	"contributes": {
+		"breakpoints": [
+			{
+				"language": "javascript"
+			},
+			{
+				"language": "typescript"
+			}
+		],
+		"debuggers": [
+			{
+				"type": "infinity",
+				"label": "INFINITY",
+				"program": "./out/infinityDebugAdapter.js",
+				"runtime": "node",
+				"languages": [
+					"javascript",
+					"typescript"
+				],
+				"configurationAttributes": {
+					"launch": {
+						"required": [
+							"program"
+						],
+						"properties": {
+							"program": {
+								"type": "string",
+								"description": "Absolute path to the main program javascript file.",
+								"default": "${workspaceFolder}/js/main.js"
+							},
+							"args": {
+								"type": "string[]",
+								"description": "Command line arguments for the executed program (and runtime).",
+								"default": []
+							},
+							"runtime": {
+								"type": "string",
+								"description": "Absolute Path to the INFINITY runtime executable (optional, default: auto-detect).",
+								"default": ""
+							},
+							"noDebug": {
+								"type": "boolean",
+								"description": "Starts the INFINITY runtime without debugging support (optional, default: false).",
+								"default": false
+							},
+							"port": {
+								"type": "number",
+								"description": "Debug port of the INFINITY runtime (optional, default port: 9090).",
+								"default": 9090
+							},
+							"timeout": {
+								"type": "number",
+								"description": "Timeout for connecting to the INFINITY runtime (optional, milliseconds, default timeout: 5000 milliseconds)",
+								"default": 5000
+							},
+							"console": {
+								"type": "boolean",
+								"description": "Show INFINITY runtime console output in the integrated visual studio code terminal (optional, default: true).",
+								"default": true
+							},
+							"disableScriptCache": {
+								"type": "boolean",
+								"description": "Disable INFINITY's script cache (optional, default: false, always active when debugging).",
+								"default": false
+							},
+							"disableOpcodeCache": {
+								"type": "boolean",
+								"description": "Disable INFINITY's opcode cache (optional, default: false, always active when debugging).",
+								"default": false
+							},
+							"reportMemoryLeaks": {
+								"type": "boolean",
+								"description": "Report memory leaks in the INFINITY runtime in the integrated visual studio code terminal (optional, default: true).",
+								"default": true
+							},
+							"sourceFolder": {
+								"type": "string",
+								"description": "Absolute path to the folder that contains the typescript source files (optional, the debugger will try to determine the source path if not specified).",
+								"default": ""
+							},
+							"sourceMapsFolder": {
+								"type": "string",
+								"description": "Absolute path to the folder that contains the source map files of compiled typescript files (optional, the debugger look for source map files in the same folder as the javascript files if not specified).",
+								"default": ""
+							},
+							"noSourceMaps": {
+								"type": "boolean",
+								"description": "Disable sourceMap files (optional, default: false, needs to be set to true for javascript-only projects)",
+								"default": false
+							}
+						}
+					},
+					"attach": {
+						"required": [
+							"program"
+						],
+						"properties": {
+							"program": {
+								"type": "string",
+								"description": "Absolute path to a javascript file.",
+								"default": "${workspaceFolder}/js/main.js"
+							},
+							"host": {
+								"type": "string",
+								"description": "Hostname or ip address of the INFINITY runtime.",
+								"default": "localhost"
+							},
+							"port": {
+								"type": "number",
+								"description": "Debug port of the INFINITY runtime (optional, default port: 9090).",
+								"default": 9090
+							},
+							"timeout": {
+								"type": "number",
+								"description": "Timeout for connecting to the INFINITY runtime (optional, milliseconds, default timeout: 5000 milliseconds)",
+								"default": 5000
+							},
+							"sourceFolder": {
+								"type": "string",
+								"description": "Absolute path to the folder that contains the typescript source files (optional, the debugger will try to determine the source path if not specified).",
+								"default": ""
+							},
+							"sourceMapsFolder": {
+								"type": "string",
+								"description": "Absolute path to the folder that contains the source map files of compiled typescript files (optional, the debugger look for source map files in the same folder as the javascript files if not specified).",
+								"default": ""
+							},
+							"noSourceMaps": {
+								"type": "boolean",
+								"description": "Disable sourceMap files (optional, default: false, needs to be set to true for javascript-only projects)",
+								"default": false
+							}
+						}
+					}
+				},
+				"configurationSnippets": [
+					{
+						"label": "INFINITY: Launch (linux-x64)",
+						"description": "A new configuration for debugging a javascript or typescript application in INFINITY.",
+						"body": {
+							"type": "infinity",
+							"request": "launch",
+							"name": "INFINITY: Launch (linux-x64)",
+							"program": "^\"\\${workspaceFolder}/js/main.js\"",
+							"runtime": "^\"\\${workspaceFolder}/../linux-x64/infinity\""
+						}
+					},
+					{
+						"label": "INFINITY: Launch (osx-x64)",
+						"description": "A new configuration for debugging a javascript or typescript application in INFINITY.",
+						"body": {
+							"type": "infinity",
+							"request": "launch",
+							"name": "INFINITY: Launch (osx-x64)",
+							"program": "^\"\\${workspaceFolder}/js/main.js\"",
+							"runtime": "^\"\\${workspaceFolder}/../osx-x64/infinity\""
+						}
+					},
+					{
+						"label": "INFINITY: Launch (win-x64)",
+						"description": "A new configuration for debugging a javascript or typescript application in INFINITY.",
+						"body": {
+							"type": "infinity",
+							"request": "launch",
+							"name": "INFINITY: Launch (win-x64)",
+							"program": "^\"\\${workspaceFolder}/js/main.js\"",
+							"runtime": "^\"\\${workspaceFolder}/../win-x64/infinity.exe\""
+						}
+					},
+					{
+						"label": "INFINITY: Launch (win-x86)",
+						"description": "A new configuration for debugging a javascript or typescript application in INFINITY.",
+						"body": {
+							"type": "infinity",
+							"request": "launch",
+							"name": "INFINITY: Launch (win-x86)",
+							"program": "^\"\\${workspaceFolder}/js/main.js\"",
+							"runtime": "^\"\\${workspaceFolder}/../win-x86/infinity.exe\""
+						}
+					},
+					{
+						"label": "INFINITY: Attach",
+						"description": "A new configuration for attaching the debugger to an already running INFINITY runtime.",
+						"body": {
+							"type": "infinity",
+							"request": "attach",
+							"name": "INFINITY: Attach",
+							"program": "^\"\\${workspaceFolder}/js/main.js\"",
+							"host": "localhost",
+							"port": 9090
+						}
+					},
+					{
+						"label": "INFINITY: Run (linux-x64)",
+						"description": "A new configuration for running a javascript or typescript application in INFINITY (without debugging).",
+						"body": {
+							"type": "infinity",
+							"request": "launch",
+							"name": "INFINITY: Run (linux-x64)",
+							"program": "^\"\\${workspaceFolder}/js/main.js\"",
+							"runtime": "^\"\\${workspaceFolder}/../linux-x64/infinity\"",
+							"noDebug": true
+						}
+					},
+					{
+						"label": "INFINITY: Run (osx-x64)",
+						"description": "A new configuration for running a javascript or typescript application in INFINITY (without debugging).",
+						"body": {
+							"type": "infinity",
+							"request": "launch",
+							"name": "INFINITY: Run (osx-x64)",
+							"program": "^\"\\${workspaceFolder}/js/main.js\"",
+							"runtime": "^\"\\${workspaceFolder}/../osx-x64/infinity\"",
+							"noDebug": true
+						}
+					},
+					{
+						"label": "INFINITY: Run (win-x64)",
+						"description": "A new configuration for running a javascript or typescript application in INFINITY (without debugging).",
+						"body": {
+							"type": "infinity",
+							"request": "launch",
+							"name": "INFINITY: Run (win-x64)",
+							"program": "^\"\\${workspaceFolder}/js/main.js\"",
+							"runtime": "^\"\\${workspaceFolder}/../win-x64/infinity.exe\"",
+							"noDebug": true
+						}
+					},
+					{
+						"label": "INFINITY: Run (win-x86)",
+						"description": "A new configuration for running a javascript or typescript application in INFINITY (without debugging).",
+						"body": {
+							"type": "infinity",
+							"request": "launch",
+							"name": "INFINITY: Run (win-x86)",
+							"program": "^\"\\${workspaceFolder}/js/main.js\"",
+							"runtime": "^\"\\${workspaceFolder}/../win-x86/infinity.exe\"",
+							"noDebug": true
+						}
+					}
+				],
+				"initialConfigurations": [
+					{
+						"type": "infinity",
+						"request": "launch",
+						"name": "INFINITY: Launch (linux-x64)",
+						"program": "${workspaceFolder}/js/main.js",
+						"runtime": "${workspaceFolder}/../linux-x64/infinity"
+					},
+					{
+						"type": "infinity",
+						"request": "launch",
+						"name": "INFINITY: Launch (osx-x64)",
+						"program": "${workspaceFolder}/js/main.js",
+						"runtime": "${workspaceFolder}/../osx-x64/infinity"
+					},
+					{
+						"type": "infinity",
+						"request": "launch",
+						"name": "INFINITY: Launch (win-x64)",
+						"program": "${workspaceFolder}/js/main.js",
+						"runtime": "${workspaceFolder}/../win-x64/infinity.exe"
+					},
+					{
+						"type": "infinity",
+						"request": "launch",
+						"name": "INFINITY: Launch (win-x86)",
+						"program": "${workspaceFolder}/js/main.js",
+						"runtime": "${workspaceFolder}/../win-x86/infinity.exe"
+					},
+					{
+						"type": "infinity",
+						"request": "attach",
+						"name": "INFINITY: Attach",
+						"program": "${workspaceFolder}/js/main.js",
+						"host": "localhost",
+						"port": 9090
+					},
+					{
+						"type": "infinity",
+						"request": "launch",
+						"name": "INFINITY: Run (linux-x64)",
+						"program": "${workspaceFolder}/js/main.js",
+						"runtime": "${workspaceFolder}/../linux-x64/infinity",
+						"noDebug": true
+					},
+					{
+						"type": "infinity",
+						"request": "launch",
+						"name": "INFINITY: Run (osx-x64)",
+						"program": "${workspaceFolder}/js/main.js",
+						"runtime": "${workspaceFolder}/../osx-x64/infinity",
+						"noDebug": true
+					},
+					{
+						"type": "infinity",
+						"request": "launch",
+						"name": "INFINITY: Run (win-x64)",
+						"program": "${workspaceFolder}/js/main.js",
+						"runtime": "${workspaceFolder}/../win-x64/infinity.exe",
+						"noDebug": true
+					},
+					{
+						"type": "infinity",
+						"request": "launch",
+						"name": "INFINITY: Run (win-x86)",
+						"program": "${workspaceFolder}/js/main.js",
+						"runtime": "${workspaceFolder}/../win-x86/infinity.exe",
+						"noDebug": true
+					}
+				]
+			}
+		]
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"lint": "eslint src --ext ts",
+		"watch": "tsc -watch -p ./",
+		"package": "vsce package"
+	},
+	"dependencies": {
+		"source-map": "^0.7.3",
+		"@vscode/debugadapter": "^1.55.1",
+		"@vscode/debugprotocol": "^1.55.1"
+	},
+	"devDependencies": {
+		"@types/glob": "^7.2.0",
+		"@types/mocha": "^8.2.3",
+		"@types/node": "^12.20.50",
+		"@types/vscode": "^1.66.0",
+		"@typescript-eslint/eslint-plugin": "^4.33.0",
+		"@typescript-eslint/parser": "^4.33.0",
+		"eslint": "^7.32.0",
+		"glob": "^7.2.0",
+		"mocha": "^8.4.0",
+		"typescript": "^4.6.4",
+		"vsce": "^2.7.0",
+		"vscode-test": "^1.6.1"
+	}
+}
