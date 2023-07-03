@@ -1,6 +1,6 @@
-# INFINITY.JS Extension
+# INFINITY.JS V3 Extension
 
-The INFINITY.JS extension provides a Visual Studio Code debugger, so that you can run and debug your INFINITY.JS applications
+The INFINITY.JS V3 extension provides a Visual Studio Code debugger, so that you can run and debug your INFINITY.JS applications
 directly from the IDE.
 
 
