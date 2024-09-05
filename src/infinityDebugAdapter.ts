@@ -29,7 +29,7 @@ interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
     disableOpcodeCache?: boolean;
     reportMemoryLeaks?: boolean;
     sourceFolder?: string;
-    sourceMapsFolder?: string;
+    sourceMapFolder?: string;
     noSourceMaps?: boolean;
 }
 
@@ -42,7 +42,7 @@ interface AttachRequestArguments extends DebugProtocol.AttachRequestArguments {
     port?: number;
     timeout?: number;
     sourceFolder?: string;
-    sourceMapsFolder?: string;
+    sourceMapFolder?: string;
     noSourceMaps?: boolean;
 }
 
@@ -105,7 +105,7 @@ export class InfinityDebugSession extends LoggingDebugSession {
 
     private programFolder: string = '';
     private sourceFolder: string = '';
-    private sourceMapsFolder: string = '';
+    private sourceMapFolder: string = '';
     private noSourceMaps: boolean = false;
     private infinity: InfinityConnection = new InfinityConnection();
     private status: InfinityStatus = { connected: false, initialized: false, paused: false, frontendReady: false };
@@ -423,14 +423,14 @@ export class InfinityDebugSession extends LoggingDebugSession {
         this.noSourceMaps = Boolean(args.noSourceMaps);
 
         if ( !this.noSourceMaps ) {
-            if ( args.sourceMapsFolder ) {
-                if ( !fs.existsSync( args.sourceMapsFolder ) ) {
-                    throw new Error( 'Parameter "sourceMapsFolder": folder not found: ' + args.sourceMapsFolder );
+            if ( args.sourceMapFolder ) {
+                if ( !fs.existsSync( args.sourceMapFolder ) ) {
+                    throw new Error( 'Parameter "sourceMapFolder": folder not found: ' + args.sourceMapFolder );
                 }
 
-                this.sourceMapsFolder = path.normalize( args.sourceMapsFolder + '/' );
+                this.sourceMapFolder = path.normalize( args.sourceMapFolder + '/' );
             } else {
-                this.sourceMapsFolder = this.programFolder;
+                this.sourceMapFolder = this.programFolder;
             }
         }
 
@@ -1237,7 +1237,7 @@ export class InfinityDebugSession extends LoggingDebugSession {
         this.sourceMappings.set( sourceFile, mapping );
         this.debuggerMappings.set( debuggerFile, mapping );
 
-        let sourceMapFile = this.sourceMapsFolder + debuggerFile + '.map';
+        let sourceMapFile = this.sourceMapFolder + debuggerFile + '.map';
 
         if ( fs.existsSync( sourceMapFile ) ) {
             try {
