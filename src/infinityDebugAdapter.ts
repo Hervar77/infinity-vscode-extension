@@ -420,7 +420,7 @@ export class InfinityDebugSession extends LoggingDebugSession {
         }
 
         this.programFolder = path.normalize( path.dirname( args.program ) + '/' );
-        this.noSourceMaps = !args.noSourceMaps;
+        this.noSourceMaps = Boolean(args.noSourceMaps);
 
         if ( !this.noSourceMaps ) {
             if ( args.sourceMapsFolder ) {
