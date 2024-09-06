@@ -1,4 +1,4 @@
-import { ContinuedEvent, Event, InitializedEvent, Logger, LoggingDebugSession, OutputEvent, Scope, Source, StackFrame, StoppedEvent, TerminatedEvent, Thread } from '@vscode/debugadapter';
+import { ContinuedEvent, Event, InitializedEvent, Logger, LoggingDebugSession, OutputEvent, Scope, Source, StackFrame, TerminatedEvent, Thread } from '@vscode/debugadapter';
 import * as vscode from 'vscode';
 import { Uri, workspace } from 'vscode';
 import { logger } from '@vscode/debugadapter/lib/logger';
@@ -533,9 +533,13 @@ export class InfinityDebugSession extends LoggingDebugSession {
         
                 let file: string = sourcePath;
         
-                if ( file.substring( 0, this.sourceFolder.length ) === this.sourceFolder ) {
+                if ( !this.sourceMapFolder && file.substring( 0, this.sourceFolder.length ) === this.sourceFolder ) {
                     file = file.substring( this.sourceFolder.length );
-                } else {
+                } 
+                else if (this.sourceMapFolder) {
+                    file = file.substring(file.indexOf('src') + 4);
+                }
+                else {
                     reject( { code: 400, message: 'Invalid source file (for typescript projects: please put "sourceMap": true into your tsconfig.json, for javascript-only projects: please put "noSourceMaps": true into your launch config)' } );
                     return;
                 }
@@ -662,11 +666,14 @@ export class InfinityDebugSession extends LoggingDebugSession {
                 }
     
                 for ( trace of data.response || [] ) {
+                    const source = await this.getSource( trace.file );
+                    const sourceLine = this.convertDebuggerLineToClient( await this.translateDebuggerLineToSource( trace.file, trace.line ) )
+
                     response.body.stackFrames.push( new StackFrame(
                         frameId,
                         trace.function,
-                        await this.getSource( trace.file ),
-                        this.convertDebuggerLineToClient( await this.translateDebuggerLineToSource( trace.file, trace.line ) )
+                        source,
+                        sourceLine
                     ) );
                     frameId = 0;
                 }
@@ -1220,7 +1227,7 @@ export class InfinityDebugSession extends LoggingDebugSession {
         if ( !sourceFile && !debuggerFile ) {
             throw new Error( 'Invalid source and debugger files' );
         } else if ( sourceFile && !debuggerFile ) {
-            debuggerFile = sourceFile.replace( '\\', '/' ); // INFINITY debugger uses forward slashes for paths
+            debuggerFile = sourceFile.replace( /\\/g, '/' ); // INFINITY debugger uses forward slashes for paths
 
             if ( debuggerFile.substring( debuggerFile.length - 3 ).toLowerCase() === '.ts' ) {
                 debuggerFile = debuggerFile.substring( 0, debuggerFile.length - 3 ) + '.js';
@@ -1278,10 +1285,10 @@ export class InfinityDebugSession extends LoggingDebugSession {
      * @return Promise<Source>
      */
     private async getSource( debuggerFile: string ): Promise<Source> {
-        return new Source(
-            await this.translateDebuggerFileToSource( debuggerFile ),
-            this.convertDebuggerPathToClient( (this.sourceFolder || this.programFolder) + await this.translateDebuggerFileToSource( debuggerFile ) )
-        );
+        const sourceName = await this.translateDebuggerFileToSource( debuggerFile )
+        const sourcePath = this.convertDebuggerPathToClient( (this.sourceFolder || this.programFolder) + sourceName )
+
+        return new Source(sourceName, sourcePath);
     }
 
     /**
