@@ -429,7 +429,11 @@ export class InfinityDebugSession extends LoggingDebugSession {
                 }
 
                 this.sourceMapFolder = path.normalize(args.sourceMapFolder + '/');
-            } else {
+            }
+            else if (args.sourceFolder) {
+                this.sourceMapFolder = path.normalize(args.sourceFolder + '/');
+            }
+            else {
                 this.sourceMapFolder = this.programFolder;
             }
         }
@@ -440,9 +444,11 @@ export class InfinityDebugSession extends LoggingDebugSession {
             }
 
             this.sourceFolder = this.fixLocalPath(args.sourceFolder + '/');
-        } else if (this.noSourceMaps) {
+        } 
+        else if (this.noSourceMaps) {
             this.sourceFolder = this.fixLocalPath(this.programFolder);
-        } else {
+        } 
+        else {
             // Initializing the source mapping for the main program file will also set up the source folder, if typescript and source maps are being used:
             await this.initMapping('', path.basename(args.program));
 
