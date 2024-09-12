@@ -3,7 +3,7 @@
 	"publisher": "infinity-technologies",
 	"displayName": "INFINITY",
 	"description": "INFINITY runtime support for Visual Studio Code.",
-	"version": "1.0.8",
+	"version": "1.0.9",
 	"author": {
 		"name": "INFINITY Technologies AG",
 		"email": "support@gitlab.infinity-technologies.li"
