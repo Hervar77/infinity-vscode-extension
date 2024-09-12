@@ -108,7 +108,7 @@
 								"description": "Absolute path to the folder that contains the typescript source files (optional, the debugger will try to determine the source path if not specified).",
 								"default": ""
 							},
-							"sourceMapsFolder": {
+							"sourceMapFolder": {
 								"type": "string",
 								"description": "Absolute path to the folder that contains the source map files of compiled typescript files (optional, the debugger look for source map files in the same folder as the javascript files if not specified).",
 								"default": ""
@@ -150,7 +150,7 @@
 								"description": "Absolute path to the folder that contains the typescript source files (optional, the debugger will try to determine the source path if not specified).",
 								"default": ""
 							},
-							"sourceMapsFolder": {
+							"sourceMapFolder": {
 								"type": "string",
 								"description": "Absolute path to the folder that contains the source map files of compiled typescript files (optional, the debugger look for source map files in the same folder as the javascript files if not specified).",
 								"default": ""
@@ -350,9 +350,9 @@
 		"package": "vsce package"
 	},
 	"dependencies": {
-		"source-map": "^0.7.3",
-		"@vscode/debugadapter": "^1.55.1",
-		"@vscode/debugprotocol": "^1.55.1"
+		"source-map": "^0.7.4",
+		"@vscode/debugadapter": "^1.67.0",
+		"@vscode/debugprotocol": "^1.67.0"
 	},
 	"devDependencies": {
 		"@types/glob": "^7.2.0",
