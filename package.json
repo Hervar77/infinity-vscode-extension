@@ -3,7 +3,7 @@
 	"publisher": "infinity-technologies",
 	"displayName": "INFINITY",
 	"description": "INFINITY runtime support for Visual Studio Code.",
-	"version": "1.0.9",
+	"version": "1.0.12",
 	"author": {
 		"name": "INFINITY Technologies AG",
 		"email": "support@gitlab.infinity-technologies.li"
@@ -19,13 +19,14 @@
 		"url": "https://gitlab.infinity-technologies.li/tf/infinity-vscode-extension"
 	},
 	"engines": {
-		"vscode": "^1.66.0"
+		"vscode": "^1.96.0"
 	},
 	"categories": [
 		"Debuggers"
 	],
 	"activationEvents": [
-		"onDebug"
+		"onDebugResolve:infinity",
+		"onDebugDynamicConfigurations:infinity"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -345,27 +346,22 @@
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
 		"compile": "tsc -p ./",
-		"lint": "eslint src --ext ts",
+		"lint": "eslint src",
 		"watch": "tsc -watch -p ./",
-		"package": "vsce package"
+		"package": "npx @vscode/vsce package"
 	},
 	"dependencies": {
-		"source-map": "^0.7.4",
-		"@vscode/debugadapter": "^1.67.0",
-		"@vscode/debugprotocol": "^1.67.0"
+		"source-map": "^0.7.6",
+		"@vscode/debugadapter": "^1.68.0",
+		"@vscode/debugprotocol": "^1.68.0"
 	},
 	"devDependencies": {
-		"@types/glob": "^7.2.0",
-		"@types/mocha": "^8.2.3",
-		"@types/node": "^12.20.50",
-		"@types/vscode": "^1.66.0",
-		"@typescript-eslint/eslint-plugin": "^4.33.0",
-		"@typescript-eslint/parser": "^4.33.0",
-		"eslint": "^7.32.0",
-		"glob": "^7.2.0",
-		"mocha": "^8.4.0",
-		"typescript": "^4.6.4",
-		"vsce": "^2.7.0",
-		"vscode-test": "^1.6.1"
+		"@types/node": "^20.19.0",
+		"@types/vscode": "^1.96.0",
+		"@typescript-eslint/eslint-plugin": "^8.61.0",
+		"@typescript-eslint/parser": "^8.61.0",
+		"eslint": "^10.5.0",
+		"typescript": "^6.0.3",
+		"@vscode/vsce": "^3.9.2"
 	}
 }
