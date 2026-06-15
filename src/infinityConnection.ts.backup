@@ -86,9 +86,11 @@ export class InfinityConnection {
      * Disconnects from the INFINTY runtime.
      */
     public disconnect() {
+        console.log('[INFINITY Connection] disconnect() called, current connected status:', this.connected);
         this.connection?.destroy();
         this.connection = undefined;
         this.connected = false;
+        console.log('[INFINITY Connection] disconnect() complete, connected now:', this.connected);
     }
 
     /**
@@ -102,6 +104,7 @@ export class InfinityConnection {
     public async send( request: string, params?: any, data?: any ): Promise<InfinityRequest> {
         return new Promise<InfinityRequest>( (resolve, reject) => {
             if ( !this.connected ) {
+                console.log('[INFINITY Connection] Rejecting request - not connected:', request);
                 reject( { success: false, error: 'Not connected to INFINITY debugger' } );
                 return;
             }
@@ -239,17 +242,23 @@ export class InfinityConnection {
      * Called when the connection to the INFINITY runtime has closed.
      */
     private onConnectionClosed = () => {
+        console.log('[INFINITY Connection] onConnectionClosed called, connectionInitialized:', this.connectionInitialized, 'connected:', this.connected);
 
         // Don't destroy the connection if it is still trying to establish the initial connection:
         if ( !this.connectionInitialized ) {
+            console.log('[INFINITY Connection] Ignoring close - connection not initialized yet');
             return;
         }
 
         let wasConnected = this.connected;
+        console.log('[INFINITY Connection] wasConnected:', wasConnected);
         this.disconnect();
 
         if ( wasConnected ) {
+            console.log('[INFINITY Connection] Firing connectionClosed event');
             this.onEvent( 'connectionClosed' );
+        } else {
+            console.log('[INFINITY Connection] Not firing connectionClosed - wasConnected is false');
         }
     };
 
@@ -279,6 +288,9 @@ export class InfinityConnection {
      * @param data {any}
      */
     private onInfinityEvent = ( data: any ) => {
+        // Debug logging to see all events from INFINITY runtime
+        console.log('[INFINITY Connection] Received event:', data.event, 'Data:', JSON.stringify(data, null, 2));
+
         if ( data && data.event === 'connected' ) {
             this.connected = true;
             this.connectionInitialized = true;

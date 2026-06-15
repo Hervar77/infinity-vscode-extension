@@ -121,6 +121,7 @@ export class InfinityDebugSession extends LoggingDebugSession {
     private infinityProcess: InfinityProcess = new InfinityProcess();
     private infinityOutput: LineBuffer = new LineBuffer();
     private infinityErrorOutput: LineBuffer = new LineBuffer();
+    private isDisconnecting: boolean = false;
 
     /**
      * Constructor.
@@ -153,7 +154,9 @@ export class InfinityDebugSession extends LoggingDebugSession {
         this.infinity.on('disconnected', () => {
             // The script running in INFINITY has finished execution and the runtime is terminating.
             this.status.connected = false;
-            this.sendEvent(new TerminatedEvent());
+            if (!this.isDisconnecting) {
+                this.sendEvent(new TerminatedEvent());
+            }
         });
 
         // The INFINITY runtime is paused and ready to receive requests.
@@ -165,11 +168,15 @@ export class InfinityDebugSession extends LoggingDebugSession {
 
         // Terminate debugger when the connection to the INFINITY runtime has been closed:
         this.infinity.on('connectionClosed', () => {
-            this.sendEvent(new TerminatedEvent());
+            if (!this.isDisconnecting) {
+                this.sendEvent(new TerminatedEvent());
+            }
         });
 
         this.infinity.on('connectionError', () => {
-            this.sendEvent(new TerminatedEvent());
+            if (!this.isDisconnecting) {
+                this.sendEvent(new TerminatedEvent());
+            }
         });
     }
 
@@ -468,7 +475,9 @@ export class InfinityDebugSession extends LoggingDebugSession {
      * @param args {DebugProtocol.ConfigurationDoneArguments}
      */
     protected configurationDoneRequest(response: DebugProtocol.ConfigurationDoneResponse, args: DebugProtocol.ConfigurationDoneArguments) {
-        super.configurationDoneRequest(response, args);
+
+        // Don't call super - we handle the response ourselves to avoid duplicate responses
+        // super.configurationDoneRequest(response, args);
 
         this.status.frontendReady = true;
 
@@ -543,7 +552,13 @@ export class InfinityDebugSession extends LoggingDebugSession {
                     file = file.substring(this.sourceFolder.length);
                 }
                 else if (this.sourceMapFolder) {
-                    file = file.substring(file.indexOf('src') + 4);
+                    // Strip the sourceFolder prefix to get relative path
+                    if (file.substring(0, this.sourceFolder.length).toLowerCase() === this.sourceFolder.toLowerCase()) {
+                        file = file.substring(this.sourceFolder.length);
+                    } else {
+                        // Fallback: just use the filename
+                        file = path.basename(file);
+                    }
                 }
                 else {
                     reject({ code: 400, message: 'Invalid source file (for typescript projects: please put "sourceMap": true into your tsconfig.json, for javascript-only projects: please put "noSourceMaps": true into your launch config)' });
@@ -609,9 +624,19 @@ export class InfinityDebugSession extends LoggingDebugSession {
      * @param response {DebugProtocol.ThreadsResponse}
      */
     protected threadsRequest(response: DebugProtocol.ThreadsResponse) {
-        response.body = {
-            threads: []
-        };
+
+        // If not connected, return immediately with empty threads
+        if (!this.infinity.isConnected() || this.isDisconnecting) {
+            response.body = { threads: [] };
+            this.sendResponse(response);
+            return;
+        }
+
+        if (!response.body) {
+            response.body = { threads: [] };
+        } else {
+            response.body.threads = [];
+        }
 
         (new Promise<void>(async (resolve, reject) => {
             try {
@@ -621,6 +646,7 @@ export class InfinityDebugSession extends LoggingDebugSession {
                 this.currentThreadId = 0;
 
                 for (let thread of this.threads) {
+
                     if (thread.type === 'main') {
                         this.mainThreadId = thread.id;
                     }
@@ -629,7 +655,13 @@ export class InfinityDebugSession extends LoggingDebugSession {
                         this.currentThreadId = thread.id;
                     }
 
-                    response.body.threads.push(new Thread(thread.id, await this.translateDebuggerFileToSource(thread.file)));
+                    try {
+                        let threadName = await this.translateDebuggerFileToSource(thread.file);
+                        response.body.threads.push(new Thread(thread.id, threadName));
+                    } catch (error) {
+                        // Fallback to using the file as-is
+                        response.body.threads.push(new Thread(thread.id, thread.file || 'unknown'));
+                    }
                 }
 
                 if (!this.currentThreadId) {
@@ -641,7 +673,8 @@ export class InfinityDebugSession extends LoggingDebugSession {
                 reject({ code: 500, message: this.getErrorMessage(error) });
             }
         })).then(() => {
-            super.threadsRequest(response);
+            // Don't call super - we handle the response ourselves to avoid duplicate responses
+            // super.threadsRequest(response);
             this.sendResponse(response);
         }).catch(error => {
             this.sendErrorResponse(response, error.code, this.getErrorMessage(error.message));
@@ -865,9 +898,14 @@ export class InfinityDebugSession extends LoggingDebugSession {
      * @param args {DebugProtocol.DisconnectArguments}
      */
     protected disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments) {
-        this.infinity.disconnect();
+        // Set flag to prevent sending TerminatedEvent during intentional disconnect
+        this.isDisconnecting = true;
 
-        super.disconnectRequest(response, args);
+        // Send response FIRST, before disconnecting
+        this.sendResponse(response);
+
+        // Then disconnect
+        this.infinity.disconnect();
     }
 
     /**
